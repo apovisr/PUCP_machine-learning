@@ -268,7 +268,7 @@
     <div class="presentation-container">
         <!-- Slide 1: Título -->
         <div class="slide active">
-            <span class="slide-number">1/20</span>
+            <span class="slide-number">1/19</span>
             <h1>Predicción de Precios de Inmuebles</h1>
             <h2 style="text-align: center; margin-top: 50px;">Aplicación de Machine Learning en el Sector Inmobiliario</h2>
             <div style="text-align: center; margin-top: 100px;">
@@ -288,7 +288,7 @@
 
         <!-- Slide 2: Introducción -->
         <div class="slide">
-            <span class="slide-number">2/20</span>
+            <span class="slide-number">2/19</span>
             <h2>Introducción</h2>
             <h3>Objetivo del Proyecto</h3>
             <p>Desarrollar un modelo de Machine Learning capaz de predecir con precisión los precios de propiedades inmobiliarias basándose en sus características.</p>
@@ -304,7 +304,7 @@
 
         <!-- Slide 3: Dataset Overview -->
         <div class="slide">
-            <span class="slide-number">3/20</span>
+            <span class="slide-number">3/19</span>
             <h2>Descripción del Dataset</h2>
             <div class="grid">
                 <div class="metric-card">
@@ -330,8 +330,8 @@
 
         <!-- Slide 4: Preprocesamiento Overview -->
         <div class="slide">
-            <span class="slide-number">4/20</span>
-            <h2>Pipeline de Preprocesamiento</h2>
+            <span class="slide-number">4/19</span>
+            <h2>Etapas de Preprocesamiento</h2>
             <div class="process-flow">
                 <div class="process-step">
                     <h3>1. Limpieza</h3>
@@ -360,7 +360,7 @@ Si &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 39
 
         <!-- Slide 5: Limpieza de Datos -->
         <div class="slide">
-            <span class="slide-number">5/20</span>
+            <span class="slide-number">5/19</span>
             <h2>Limpieza de Datos</h2>
             <h3>Estrategias Aplicadas</h3>
             <ul>
@@ -395,7 +395,7 @@ def replace_not_specified_with_mode(column, dataset):<br>
 
         <!-- Slide 6: Transformación de Variables -->
         <div class="slide">
-            <span class="slide-number">6/20</span>
+            <span class="slide-number">6/19</span>
             <h2>Transformación de Variables</h2>
             <h3>Variable Target: Precio</h3>
             <p>Aplicamos transformación logarítmica para normalizar la distribución:</p>
@@ -410,11 +410,26 @@ def replace_not_specified_with_mode(column, dataset):<br>
                 <li><strong>Variables Categóricas:</strong> Transformación con OneHotEncoder</li>
                 <li><strong>Variables Binarias:</strong> Transformación con OneHotEncoder</li>
             </ul>
+            <div class="code-block">
+                <code>
+categorical_cols = X.select_dtypes(include=['category']).columns.tolist()<br>
+numerical_cols = ['Garages', 'Number_Bathrooms', 'Age', 'Number_Floors']<br>
+log_cols = ['Construction_Area_m2', 'Total_Area_m2']<br>
+<br>
+preprocessor = ColumnTransformer(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;transformers=[<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;('num', StandardScaler(), numerical_cols),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;('log', FunctionTransformer(np.log), log_cols),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;('cat', OneHotEncoder(handle_unknown='ignore'), categorical_cols)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;]<br>
+)
+                </code>
+            </div>
         </div>
 
         <!-- Slide 7: Feature Engineering -->
         <div class="slide">
-            <span class="slide-number">7/20</span>
+            <span class="slide-number">7/19</span>
             <h2>Ingeniería de Características</h2>
             <h3>Procesamiento Específico</h3>
             <div class="feature-list">
@@ -450,7 +465,7 @@ def replace_not_specified_with_mode(column, dataset):<br>
         </div>
 
         <!-- Slide 8: Pipeline Completo -->
-        <div class="slide">
+        <!--<div class="slide">
             <span class="slide-number">8/20</span>
             <h2>Pipeline de Preprocesamiento Completo</h2>
             <div class="code-block">
@@ -472,10 +487,10 @@ preprocessor = ColumnTransformer(<br>
             </div>
             <p>Este pipeline garantiza un preprocesamiento consistente entre entrenamiento y predicción.</p>
         </div>
-
+    -->
         <!-- Slide 9: Modelos Evaluados -->
         <div class="slide">
-            <span class="slide-number">9/20</span>
+            <span class="slide-number">8/19</span>
             <h2>Modelos de Machine Learning Evaluados</h2>
             <div class="grid">
                 <div class="metric-card">
@@ -503,7 +518,7 @@ preprocessor = ColumnTransformer(<br>
 
         <!-- Slide 10: Red Neuronal -->
         <div class="slide">
-            <span class="slide-number">10/20</span>
+            <span class="slide-number">9/19</span>
             <h2>Red Neuronal - Arquitectura</h2>
             <div class="code-block">
                 <code>
@@ -527,7 +542,7 @@ model = tf.keras.Sequential([<br>
 
         <!-- Slide 11: Random Forest -->
         <div class="slide">
-            <span class="slide-number">11/20</span>
+            <span class="slide-number">10/19</span>
             <h2>Random Forest - Configuración</h2>
             <div class="code-block">
                 <code>
@@ -549,7 +564,7 @@ randomForest = RandomForestRegressor(<br>
 
         <!-- Slide 12: XGBoost -->
         <div class="slide">
-            <span class="slide-number">12/20</span>
+            <span class="slide-number">11/19</span>
             <h2>XGBoost - Optimización de Hiperparámetros</h2>
             <h3>Grid Search</h3>
             <div class="code-block">
@@ -569,7 +584,7 @@ param_grid = {<br>
 
         <!-- Slide 13: Mejores Parámetros XGBoost -->
         <div class="slide">
-            <span class="slide-number">13/20</span>
+            <span class="slide-number">12/19</span>
             <h2>XGBoost - Configuración Óptima</h2>
             <h3>Parámetros Seleccionados</h3>
             <div class="metric-card">
@@ -586,7 +601,7 @@ param_grid = {<br>
 
         <!-- Slide 14: Comparación de Resultados -->
         <div class="slide">
-            <span class="slide-number">14/20</span>
+            <span class="slide-number">13/19</span>
             <h2>Comparación de Modelos</h2>
             <table class="model-comparison">
                 <thead>
@@ -640,7 +655,7 @@ param_grid = {<br>
 
         <!-- Slide 15: Análisis de Resultados -->
         <div class="slide">
-            <span class="slide-number">15/20</span>
+            <span class="slide-number">14/19</span>
             <h2>Análisis de Resultados</h2>
             <h3>Mejor Modelo: XGBoost Optimizado</h3>
             <div class="grid">
@@ -664,7 +679,7 @@ param_grid = {<br>
 
         <!-- Slide 16: Ventajas del XGBoost -->
         <div class="slide">
-            <span class="slide-number">16/20</span>
+            <span class="slide-number">15/19</span>
             <h2>¿Por qué XGBoost fue el Mejor?</h2>
             <div class="feature-list">
                 <div class="feature-item">
@@ -688,7 +703,7 @@ param_grid = {<br>
 
         <!-- Slide 17: Factores Clave -->
         <div class="slide">
-            <span class="slide-number">17/20</span>
+            <span class="slide-number">16/19</span>
             <h2>Factores Clave en la Predicción</h2>
             <h3>Variables Más Importantes</h3>
             <ul>
@@ -703,7 +718,7 @@ param_grid = {<br>
 
         <!-- Slide 18: Lecciones Aprendidas -->
         <div class="slide">
-            <span class="slide-number">18/20</span>
+            <span class="slide-number">17/19</span>
             <h2>Lecciones Aprendidas</h2>
             <h3>Preprocesamiento</h3>
             <ul>
@@ -722,7 +737,7 @@ param_grid = {<br>
 
         <!-- Slide 19: Aplicaciones Prácticas -->
         <div class="slide">
-            <span class="slide-number">19/20</span>
+            <span class="slide-number">18/19</span>
             <h2>Aplicaciones Prácticas</h2>
             <div class="grid">
                 <div class="metric-card">
@@ -749,7 +764,7 @@ param_grid = {<br>
 
         <!-- Slide 20: Conclusiones -->
         <div class="slide">
-            <span class="slide-number">20/20</span>
+            <span class="slide-number">19/19</span>
             <h2>Conclusiones</h2>
             <div class="metric-card" style="margin-bottom: 40px;">
                 <h3>Logros Principales</h3>
