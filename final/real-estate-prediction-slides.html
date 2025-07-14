@@ -364,7 +364,7 @@ Si &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 39
             <h2>Limpieza de Datos</h2>
             <h3>Estrategias Aplicadas</h3>
             <ul>
-                <li><strong>Extracción de Ubicación:</strong> Transformación de campos de texto para obtener distrito y provincia</li>
+                <li><strong>Desempaquetamiento de Ubicación:</strong> Transformación de campos de texto para obtener distrito y provincia</li>
                 <li><strong>Valores Faltantes:</strong> 
                     <ul>
                         <li>Variables numéricas: Imputación con mediana</li>
@@ -422,7 +422,7 @@ def replace_not_specified_with_mode(column, dataset):<br>
                     <strong>Dormitorios:</strong> Mapeo de "5+" a valor numérico 5
                 </div>
                 <div class="feature-item">
-                    <strong>Edad:</strong> Conversión a numérico y manejo de valores faltantes
+                    <strong>Antiguedad:</strong> Conversión a numérico y manejo de valores faltantes
                 </div>
                 <div class="feature-item">
                     <strong>Beach Resort:</strong> Limpieza de valores especiales '0', '1' y 'Nulo'
