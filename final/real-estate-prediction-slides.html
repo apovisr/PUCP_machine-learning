@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predicción de Precios de Inmuebles - ML</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            overflow: hidden;
+        }
+
+        .presentation-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slide {
+            width: 90%;
+            max-width: 1200px;
+            height: 90vh;
+            position: absolute;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.5s ease-in-out;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 20px;
+            padding: 60px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .slide h1 {
+            font-size: 3.5em;
+            margin-bottom: 30px;
+            background: linear-gradient(45deg, #00d4ff, #0099ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+        }
+
+        .slide h2 {
+            font-size: 2.5em;
+            margin-bottom: 25px;
+            color: #00d4ff;
+        }
+
+        .slide h3 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: #0099ff;
+        }
+
+        .slide p, .slide li {
+            font-size: 1.3em;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .slide ul {
+            list-style-position: inside;
+            margin-left: 20px;
+        }
+
+        .slide ul li::marker {
+            color: #00d4ff;
+        }
+
+        .code-block {
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            overflow-x: auto;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .metric-value {
+            font-size: 3em;
+            font-weight: bold;
+            color: #00d4ff;
+        }
+
+        .metric-label {
+            font-size: 1.2em;
+            color: #a0a0a0;
+            margin-top: 10px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 1000;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #00d4ff, #0099ff);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            color: white;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0, 212, 255, 0.5);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .slide-number {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            font-size: 1.2em;
+            color: #666;
+        }
+
+        .highlight {
+            background: linear-gradient(45deg, #00d4ff20, #0099ff20);
+            padding: 3px 8px;
+            border-radius: 5px;
+            border-left: 3px solid #00d4ff;
+        }
+
+        .model-comparison {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            background: #0a0a0a;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .model-comparison th {
+            background: linear-gradient(45deg, #00d4ff, #0099ff);
+            color: white;
+            padding: 20px;
+            text-align: left;
+            font-size: 1.2em;
+        }
+
+        .model-comparison td {
+            padding: 15px 20px;
+            border-bottom: 1px solid #333;
+        }
+
+        .model-comparison tr:hover {
+            background: #1a1a2e;
+        }
+
+        .best-model {
+            background: #00d4ff20 !important;
+        }
+
+        .process-flow {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            margin: 40px 0;
+        }
+
+        .process-step {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            flex: 1;
+            margin: 0 10px;
+            position: relative;
+        }
+
+        .process-step::after {
+            content: '→';
+            position: absolute;
+            right: -30px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2em;
+            color: #00d4ff;
+        }
+
+        .process-step:last-child::after {
+            display: none;
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .feature-item {
+            background: #1a1a2e;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #00d4ff;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <!-- Slide 1: Título -->
+        <div class="slide active">
+            <span class="slide-number">1/20</span>
+            <h1>Predicción de Precios de Inmuebles</h1>
+            <h2 style="text-align: center; margin-top: 50px;">Aplicación de Machine Learning en el Sector Inmobiliario</h2>
+            <div style="text-align: center; margin-top: 100px;">
+                <p style="font-size: 1.5em; color: #00d4ff;">Análisis Predictivo con Python</p>
+                <p style="font-size: 1.3em; margin-top: 30px;">Dataset: 7,000 analizados</p>
+            </div>
+            <div style="text-align: left; margin-top: 100px;">
+                <p style="font-size: 1.5em; color: #00d4ff;">Equipo: Data Guardians</p>
+                <p style="font-size: 1.5em; color: #00d4ff;">Integrantes</p>
+                <ul>
+                <li><span style="font-size: 1.3em; margin-top: 30px;">Alvarez Rojas, Dominick</span></li>
+                <li><span style="font-size: 1.3em; margin-top: 30px;">Durán Tinoco, Richard</span></li>
+                <li><span style="font-size: 1.3em; margin-top: 30px;">Povis Rodriguez, Angel</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 2: Introducción -->
+        <div class="slide">
+            <span class="slide-number">2/20</span>
+            <h2>Introducción</h2>
+            <h3>Objetivo del Proyecto</h3>
+            <p>Desarrollar un modelo de Machine Learning capaz de predecir con precisión los precios de propiedades inmobiliarias basándose en sus características.</p>
+            
+            <h3>Importancia</h3>
+            <ul>
+                <li>Ayuda a compradores y vendedores a tomar decisiones informadas</li>
+                <li>Proporciona valuaciones objetivas basadas en datos</li>
+                <li>Identifica factores clave que influyen en el precio</li>
+                <li>Optimiza estrategias de inversión inmobiliaria</li>
+            </ul>
+        </div>
+
+        <!-- Slide 3: Dataset Overview -->
+        <div class="slide">
+            <span class="slide-number">3/20</span>
+            <h2>Descripción del Dataset</h2>
+            <div class="grid">
+                <div class="metric-card">
+                    <div class="metric-value">7,000</div>
+                    <div class="metric-label">Registros</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">89</div>
+                    <div class="metric-label">Características(Atributos)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">22</div>
+                    <div class="metric-label">Provincias</div>
+                </div>
+            </div>
+            <h3>Tipos de Variables</h3>
+            <ul>
+                <li><span class="highlight">Numéricas:</span> Área, número de habitaciones, baños, pisos, edad</li>
+                <li><span class="highlight">Categóricas:</span> Ubicación, tipo de propiedad, condición</li>
+                <li><span class="highlight">Binarias:</span> Amenidades (piscina, jardín, garaje, etc.)</li>
+            </ul>
+        </div>
+
+        <!-- Slide 4: Preprocesamiento Overview -->
+        <div class="slide">
+            <span class="slide-number">4/20</span>
+            <h2>Pipeline de Preprocesamiento</h2>
+            <div class="process-flow">
+                <div class="process-step">
+                    <h3>1. Limpieza</h3>
+                    <p>Datos faltantes y outliers</p>
+                </div>
+                <div class="process-step">
+                    <h3>2. Transformación</h3>
+                    <p>Encoding y escalado</p>
+                </div>
+                <div class="process-step">
+                    <h3>3. Ingeniería</h3>
+                    <p>Nuevas características</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Limpieza de Datos -->
+        <div class="slide">
+            <span class="slide-number">5/20</span>
+            <h2>Limpieza de Datos</h2>
+            <h3>Estrategias Aplicadas</h3>
+            <ul>
+                <li><strong>Extracción de Ubicación:</strong> Transformación de campos de texto para obtener distrito y provincia</li>
+                <li><strong>Valores Faltantes:</strong> 
+                    <ul>
+                        <li>Variables numéricas: Imputación con mediana</li>
+                        <li>Variables categóricas: Se creo una nueva categoría para valores nulos "None"</li>
+                    </ul>
+                </li>
+                <li><strong>Valores Inconsistentes:</strong> Remplazo de valores"Not specified", "Nulo" por None</li>
+            </ul>
+            <div class="code-block">
+                <code>
+def replace_not_specified_with_mode(column, dataset):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;dataset[column] = dataset[column].apply(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lambda x: np.nan if x in ['Not specified', 'Nulo'] else x<br>
+&nbsp;&nbsp;&nbsp;&nbsp;)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;dataset[column].fillna(None, inplace=True)
+                </code>
+            </div>
+        </div>
+
+        <!-- Slide 6: Transformación de Variables -->
+        <div class="slide">
+            <span class="slide-number">6/20</span>
+            <h2>Transformación de Variables</h2>
+            <h3>Variable Target: Precio</h3>
+            <p>Aplicamos transformación logarítmica para normalizar la distribución:</p>
+            <div class="code-block">
+                <code>y = np.log(data['Price'])</code>
+            </div>
+            
+            <h3>Variables independientes</h3>
+            <ul>
+                <li><strong>Variables Numéricas:</strong> Normalización con StandardScaler</li>
+                <li><strong>Áreas (m²):</strong> Normalización logarítmica</li>
+                <li><strong>Variables Categóricas:</strong> Transformación con OneHotEncoder</li>
+                <li><strong>Variables Binarias:</strong> Transformación con OneHotEncoder</li>
+            </ul>
+        </div>
+
+        <!-- Slide 7: Feature Engineering -->
+        <div class="slide">
+            <span class="slide-number">7/20</span>
+            <h2>Ingeniería de Características</h2>
+            <h3>Procesamiento Específico</h3>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <strong>Dormitorios:</strong> Mapeo de "5+" a valor numérico 5
+                </div>
+                <div class="feature-item">
+                    <strong>Edad:</strong> Conversión a numérico y manejo de valores faltantes
+                </div>
+                <div class="feature-item">
+                    <strong>Beach Resort:</strong> Limpieza de valores especiales '0', '1' y 'Nulo'
+                </div>
+            </div>
+            
+            <h3>Eliminación de Características</h3>
+            <p>Se removieron columnas redundantes o con un solo valor único:
+            <ul>
+                <li>Id</li>
+                <li>Advertiser</li>
+                <li>Cleaning_Service</li>
+                <li>Telephone</li>
+                <li>Internet_Room</li>
+                <li>Service_Bathroom</li>
+                <li>Service_Room</li>
+                <li>Handicap_Access</li>
+                <li>Office</li>
+                <li>Club_House</li>
+                <li>Kitchen</li>
+                <li>Air_Conditioning</li>
+                <li>Location</li>
+                <li>Match</li>
+            </ul>
+        </div>
+
+        <!-- Slide 8: Pipeline Completo -->
+        <div class="slide">
+            <span class="slide-number">8/20</span>
+            <h2>Pipeline de Preprocesamiento Completo</h2>
+            <div class="code-block">
+                <code>
+categorical_cols = X.select_dtypes(include=['category']).columns.tolist()<br>
+numerical_cols = ['Garages', 'Number_Bathrooms', 'Age', 'Number_Floors']<br>
+log_cols = ['Construction_Area_m2', 'Total_Area_m2']<br>
+boolean_cols = X.select_dtypes(include=['bool']).columns.tolist()<br>
+<br>
+preprocessor = ColumnTransformer(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;transformers=[<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;('bool', OneHotEncoder(), boolean_cols),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;('num', StandardScaler(), numerical_cols),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;('log', FunctionTransformer(np.log), log_cols),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;('cat', OneHotEncoder(handle_unknown='ignore'), categorical_cols)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;]<br>
+)
+                </code>
+            </div>
+            <p>Este pipeline garantiza un preprocesamiento consistente entre entrenamiento y predicción.</p>
+        </div>
+
+        <!-- Slide 9: Modelos Evaluados -->
+        <div class="slide">
+            <span class="slide-number">9/20</span>
+            <h2>Modelos de Machine Learning Evaluados</h2>
+            <div class="grid">
+                <div class="metric-card">
+                    <h3>Red Neuronal</h3>
+                    <p>Deep Learning con TensorFlow</p>
+                </div>
+                <div class="metric-card">
+                    <h3>Random Forest</h3>
+                    <p>Ensemble de árboles</p>
+                </div>
+                <div class="metric-card">
+                    <h3>XGBoost</h3>
+                    <p>Gradient Boosting optimizado</p>
+                </div>
+                <div class="metric-card">
+                    <h3>MLP Regressor</h3>
+                    <p>Perceptrón multicapa</p>
+                </div>
+                <div class="metric-card">
+                    <h3>Lasso</h3>
+                    <p>Regresión regularizada</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Red Neuronal -->
+        <div class="slide">
+            <span class="slide-number">10/20</span>
+            <h2>Red Neuronal - Arquitectura</h2>
+            <div class="code-block">
+                <code>
+model = tf.keras.Sequential([<br>
+&nbsp;&nbsp;&nbsp;&nbsp;tf.keras.layers.InputLayer(input_shape=(X_train.shape[1],)),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;tf.keras.layers.Dense(128, activation='relu'),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;tf.keras.layers.Dense(128, activation='relu'),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;tf.keras.layers.Dense(64, activation='relu'),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;tf.keras.layers.Dense(1)<br>
+])
+                </code>
+            </div>
+            <h3>Configuración</h3>
+            <ul>
+                <li>Optimizador: Adam con gradient clipping</li>
+                <li>Early stopping: patience=10</li>
+                <li>Batch size: 64</li>
+                <li>Épocas: 150 (con early stopping)</li>
+            </ul>
+        </div>
+
+        <!-- Slide 11: Random Forest -->
+        <div class="slide">
+            <span class="slide-number">11/20</span>
+            <h2>Random Forest - Configuración</h2>
+            <div class="code-block">
+                <code>
+randomForest = RandomForestRegressor(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;n_estimators=500,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;random_state=42,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;max_depth=10<br>
+)
+                </code>
+            </div>
+            <h3>Ventajas del Modelo</h3>
+            <ul>
+                <li>Robusto ante outliers</li>
+                <li>No requiere escalado de características</li>
+                <li>Proporciona importancia de variables</li>
+                <li>Maneja bien relaciones no lineales</li>
+            </ul>
+        </div>
+
+        <!-- Slide 12: XGBoost -->
+        <div class="slide">
+            <span class="slide-number">12/20</span>
+            <h2>XGBoost - Optimización de Hiperparámetros</h2>
+            <h3>Grid Search</h3>
+            <div class="code-block">
+                <code>
+param_grid = {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;'n_estimators': [50, 100, 200, 300, 400, 500],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;'max_depth': [3, 6, 10],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;'learning_rate': [0.01, 0.05, 0.1],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;'subsample': [0.7, 0.8, 1.0],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;'colsample_bytree': [0.7, 0.8, 1.0],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;'min_child_weight': [1, 5, 10]<br>
+}
+                </code>
+            </div>
+            <p>Total de combinaciones evaluadas: <strong>1,458</strong></p>
+        </div>
+
+        <!-- Slide 13: Mejores Parámetros XGBoost -->
+        <div class="slide">
+            <span class="slide-number">13/20</span>
+            <h2>XGBoost - Configuración Óptima</h2>
+            <h3>Parámetros Seleccionados</h3>
+            <div class="metric-card">
+                <ul style="text-align: left; list-style: none;">
+                    <li><strong>colsample_bytree:</strong> 0.7</li>
+                    <li><strong>learning_rate:</strong> 0.1</li>
+                    <li><strong>max_depth:</strong> 6</li>
+                    <li><strong>min_child_weight:</strong> 1</li>
+                    <li><strong>n_estimators:</strong> 500</li>
+                    <li><strong>subsample:</strong> 1.0</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 14: Comparación de Resultados -->
+        <div class="slide">
+            <span class="slide-number">14/20</span>
+            <h2>Comparación de Modelos</h2>
+            <table class="model-comparison">
+                <thead>
+                    <tr>
+                        <th>Modelo</th>
+                        <th>MAE</th>
+                        <th>R² Score</th>
+                        <th>Tiempo Entrenamiento</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Red Neuronal</td>
+                        <td>0.2769</td>
+                        <td>0.7970</td>
+                        <td>~30s</td>
+                    </tr>
+                    <tr>
+                        <td>MLP Regressor</td>
+                        <td>0.3178</td>
+                        <td>0.7282</td>
+                        <td>~5s</td>
+                    </tr>
+                    <tr>
+                        <td>Random Forest</td>
+                        <td>0.2882</td>
+                        <td>0.7893</td>
+                        <td>~10s</td>
+                    </tr>
+                    <tr>
+                        <td>Lasso</td>
+                        <td>0.4155</td>
+                        <td>0.5901</td>
+                        <td>~1s</td>
+                    </tr>
+                    <tr>
+                        <td>XGBoost (inicial)</td>
+                        <td>0.2556</td>
+                        <td>0.8265</td>
+                        <td>~15s</td>
+                    </tr>
+                    <tr class="best-model">
+                        <td><strong>XGBoost (optimizado)</strong></td>
+                        <td><strong>0.2458</strong></td>
+                        <td><strong>0.8406</strong></td>
+                        <td>~20s</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Slide 15: Análisis de Resultados -->
+        <div class="slide">
+            <span class="slide-number">15/20</span>
+            <h2>Análisis de Resultados</h2>
+            <h3>Mejor Modelo: XGBoost Optimizado</h3>
+            <div class="grid">
+                <div class="metric-card">
+                    <div class="metric-value">84.06%</div>
+                    <div class="metric-label">R² Score</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">0.2458</div>
+                    <div class="metric-label">MAE (log scale)</div>
+                </div>
+            </div>
+            
+            <h3>Interpretación</h3>
+            <ul>
+                <li>El modelo explica el 84% de la variabilidad en los precios</li>
+                <li>Error promedio de ~24.6% en escala logarítmica</li>
+                <li>Mejora significativa con optimización de hiperparámetros</li>
+            </ul>
+        </div>
+
+        <!-- Slide 16: Ventajas del XGBoost -->
+        <div class="slide">
+            <span class="slide-number">16/20</span>
+            <h2>¿Por qué XGBoost fue el Mejor?</h2>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <h3>1. Regularización</h3>
+                    <p>Previene overfitting mediante L1 (Regularización Lasso) y L2 (Regularización Ridge)</p>
+                </div>
+                <div class="feature-item">
+                    <h3>2. Manejo de Missing Values</h3>
+                    <p>Algoritmo nativo para valores faltantes</p>
+                </div>
+                <div class="feature-item">
+                    <h3>3. Paralelización</h3>
+                    <p>Entrenamiento eficiente y rápido</p>
+                </div>
+                <div class="feature-item">
+                    <h3>4. Boosting Secuencial</h3>
+                    <p>Aprende de errores previos</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 17: Factores Clave -->
+        <div class="slide">
+            <span class="slide-number">17/20</span>
+            <h2>Factores Clave en la Predicción</h2>
+            <h3>Variables Más Importantes</h3>
+            <ul>
+                <li><strong>Área Total (m²):</strong> Factor más influyente en el precio</li>
+                <li><strong>Área de Construcción:</strong> Correlación directa con el valor</li>
+                <li><strong>Ubicación:</strong> Distrito y provincia impactan significativamente</li>
+                <li><strong>Número de Dormitorios y Baños:</strong> Indicadores de tamaño y comodidad</li>
+                <li><strong>Condición de la Propiedad:</strong> Estado general del inmueble</li>
+                <li><strong>Amenidades:</strong> Piscina, jardín, garaje aumentan el valor</li>
+            </ul>
+        </div>
+
+        <!-- Slide 18: Lecciones Aprendidas -->
+        <div class="slide">
+            <span class="slide-number">18/20</span>
+            <h2>Lecciones Aprendidas</h2>
+            <h3>Preprocesamiento</h3>
+            <ul>
+                <li>La calidad de los datos es fundamental para el éxito del modelo</li>
+                <li>La transformación logarítmica del precio mejora significativamente las predicciones</li>
+                <li>El manejo consistente de valores faltantes es crucial</li>
+            </ul>
+            
+            <h3>Modelado</h3>
+            <ul>
+                <li>Los modelos de ensemble (XGBoost, Random Forest) superan a modelos lineales</li>
+                <li>La optimización de hiperparámetros puede mejorar el rendimiento en ~2%</li>
+                <li>No siempre el modelo más complejo es el mejor</li>
+            </ul>
+        </div>
+
+        <!-- Slide 19: Aplicaciones Prácticas -->
+        <div class="slide">
+            <span class="slide-number">19/20</span>
+            <h2>Aplicaciones Prácticas</h2>
+            <div class="grid">
+                <div class="metric-card">
+                    <h3>Tasación Automatizada</h3>
+                    <p>Valoración instantánea de propiedades</p>
+                </div>
+                <div class="metric-card">
+                    <h3>Análisis de Inversión</h3>
+                    <p>Identificación de oportunidades</p>
+                </div>
+                <div class="metric-card">
+                    <h3>Tendencias del Mercado</h3>
+                    <p>Predicción de zonas en desarrollo</p>
+                </div>
+            </div>
+            
+            <h3>Mejoras Futuras</h3>
+            <ul>
+                <li>Incorporar datos externos (economía, demografía)</li>
+                <li>Análisis temporal de precios</li>
+                <li>Modelos específicos por tipo de propiedad</li>
+            </ul>
+        </div>
+
+        <!-- Slide 20: Conclusiones -->
+        <div class="slide">
+            <span class="slide-number">20/20</span>
+            <h2>Conclusiones</h2>
+            <div class="metric-card" style="margin-bottom: 40px;">
+                <h3>Logro Principal</h3>
+                <p>Modelo predictivo con 84% de precisión para valoración inmobiliaria</p>
+            </div>
+            
+            <h3>Puntos Clave</h3>
+            <ul>
+                <li>El preprocesamiento exhaustivo es esencial para el éxito</li>
+                <li>XGBoost demostró ser la mejor opción para este problema</li>
+                <li>La optimización de hiperparámetros vale la inversión de tiempo</li>
+                <li>El modelo es aplicable a casos reales del mercado inmobiliario</li>
+            </ul>
+            
+            <div style="text-align: center; margin-top: 50px;">
+                <h3 style="color: #00d4ff;">¡Gracias!</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="btn" id="prevBtn" onclick="changeSlide(-1)">← Anterior</button>
+        <button class="btn" id="nextBtn" onclick="changeSlide(1)">Siguiente →</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+            slides[currentSlide].classList.add('fade-in');
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+        }
+
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' && currentSlide > 0) changeSlide(-1);
+            if (e.key === 'ArrowRight' && currentSlide < totalSlides - 1) changeSlide(1);
+        });
+
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>
