@@ -5,4 +5,4 @@ APRENDIZAJE AUTOMÁTICO: Teoría y aplicaciones - INF648
 - ALVAREZ ROJAS, DOMINICK PATRICIA, Codigo:	20150169
 - POVIS RODRIGUEZ, ANGEL LUIS, Codigo:		20255349
 
-## Proyecto: Productivity Prediction of Garment Employees Data Set
+## Proyecto: Reto Kaggle Predicción del Precio de Inmuebles PUCP
