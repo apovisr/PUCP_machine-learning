@@ -346,6 +346,16 @@
                     <p>Nuevas características</p>
                 </div>
             </div>
+            <div class="code-block">
+                <code>
+Kitchen_with_Cabinets<br>
+0 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2712<br>
+1 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1465<br>
+No&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2<br>
+Not specified&nbsp; 2285<br>
+Si &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 39
+                </code>
+            </div>
         </div>
 
         <!-- Slide 5: Limpieza de Datos -->
@@ -365,6 +375,14 @@
             </ul>
             <div class="code-block">
                 <code>
+                    def extract_Location(data_set: pd.DataFrame) -> pd.DataFrame:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;data_set['Location'] = data_set['Location'].str.extract(r'([^-\s]+)')<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;data_set['Location'].fillna('NA', inplace=True)<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;return data_set      
+                </code>
+            </div>
+            <div class="code-block">
+                <code>
 def replace_not_specified_with_mode(column, dataset):<br>
 &nbsp;&nbsp;&nbsp;&nbsp;dataset[column] = dataset[column].apply(<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lambda x: np.nan if x in ['Not specified', 'Nulo'] else x<br>
@@ -373,6 +391,7 @@ def replace_not_specified_with_mode(column, dataset):<br>
                 </code>
             </div>
         </div>
+     
 
         <!-- Slide 6: Transformación de Variables -->
         <div class="slide">
@@ -733,8 +752,9 @@ param_grid = {<br>
             <span class="slide-number">20/20</span>
             <h2>Conclusiones</h2>
             <div class="metric-card" style="margin-bottom: 40px;">
-                <h3>Logro Principal</h3>
-                <p>Modelo predictivo con 84% de precisión para valoración inmobiliaria</p>
+                <h3>Logros Principales</h3>
+                <p>Modelo predictivo con 84% de precisión para valoración inmobiliaria en local</p>
+                <p>Modelo predictivo con 70% de precisión para valoración inmobiliaria en Kaggle</p>
             </div>
             
             <h3>Puntos Clave</h3>
